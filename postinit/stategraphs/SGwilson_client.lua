@@ -74,7 +74,11 @@ local actionhandlers = {
     ActionHandler(ACTIONS.BUILD_ROOM, "doshortaction"),
     ActionHandler(ACTIONS.DEMOLISH_ROOM, "doshortaction"),
     ActionHandler(ACTIONS.THROW, "throw"),
-    ActionHandler(ACTIONS.DODGE, "dodge"),
+    ActionHandler(ACTIONS.DODGE, function(inst)
+        if inst.AllowDodge and inst:AllowDodge() then
+            return "dodge"
+        end
+    end),
 }
 
 local eventhandlers = {
@@ -1129,7 +1133,7 @@ AddStategraphPostInit("wilson_client", function(sg)
         local chair = buffaction ~= nil and buffaction.target or nil
         if chair and chair:HasTag("limited_chair") then
             if chair:HasTag("rotatableobject") then
-                inst.Transform:SetPredictedNoFaced()
+                inst.Transform:SetPredictedTwoFaced()
             end
         end
     end

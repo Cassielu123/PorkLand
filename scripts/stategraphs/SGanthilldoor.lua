@@ -8,7 +8,7 @@ local events =
 {
 }
 
-local states_east =
+local states_north =
 {
     State{
         name = "idle",
@@ -17,9 +17,9 @@ local states_east =
         onenter = function(inst, playanim)
             inst.components.door:UpdateDoorVis()
             if inst.components.door.hidden then
-                inst.AnimState:PlayAnimation("east_closed", true)
+                inst.AnimState:PlayAnimation("north_closed", true)
             else
-                inst.AnimState:PlayAnimation("east", true)
+                inst.AnimState:PlayAnimation("north", true)
             end
         end,
     },
@@ -31,16 +31,13 @@ local states_east =
         onenter = function(inst)
             inst.components.door:SetHidden(false)
             inst.components.door:UpdateDoorVis()
-            inst.AnimState:PlayAnimation("east_open", false)
+            inst.AnimState:PlayAnimation("north", false)
         end,
 
         events =
         {
             EventHandler("animover", function(inst)
-                inst.sg:GoToState("idle")
-            end),
-            EventHandler("entitysleep", function(inst)
-                inst.sg:GoToState("idle")
+                inst.sg:GoToState("idle_north")
             end),
         }
     },
@@ -50,7 +47,7 @@ local states_east =
         tags = {"busy", "shut"},
 
         onenter = function(inst)
-            inst.AnimState:PlayAnimation("east_shut", false)
+            inst.AnimState:PlayAnimation("north_shut", false)
         end,
 
         onexit = function(inst)
@@ -63,12 +60,8 @@ local states_east =
                 inst.components.door:UpdateDoorVis()
                 inst.sg:GoToState("idle")
             end),
-            EventHandler("entitysleep", function(inst)
-                inst.components.door:UpdateDoorVis()
-                inst.sg:GoToState("idle")
-            end),
         }
     },
 }
 
-return StateGraph("anthilldoor_east", states_east, events, "idle", actionhandlers)
+return StateGraph("anthilldoor", states_north, events, "idle", actionhandlers)

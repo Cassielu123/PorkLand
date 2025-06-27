@@ -1,11 +1,11 @@
 return {
-    SKIN_NAMES = 
+    SKIN_NAMES =
     {
         wagstaff_none = "Wagstaff",
         wilba_none = "Wilba",
         wheeler_none = "Wheeler",
     },
-    CHARACTER_NAMES = 
+    CHARACTER_NAMES =
     {
         wagstaff = "Robert Wagstaff",
         wilba = "Wilba",
@@ -19,13 +19,13 @@ return {
     },
     CHARACTER_DESCRIPTIONS =
     {
-        wagstaff = "*A great inventor\n*Nearsighted\n*Delicate Stomach",   
+        wagstaff = "*A great inventor\n*Nearsighted\n*Delicate Stomach",
         wilba = "*Is royalty\n*Carries her father's legacy\n*Is afraid of the dark",
         wheeler = "*Armed with an air horn\n*Has a knick knack for finding things\n*Travels lighter than most",
     },
     CHARACTER_SURVIVABILITY =
     {
-        wagstaff = "Unknown",   
+        wagstaff = "Unknown",
         wilba = "Slim",
         wheeler = "Slim",
     },
@@ -2681,12 +2681,14 @@ return {
         SWINGING_LIGHT_TOPHAT = "Add some sophistication.",
         THUNDERHAT = "Don't be shocked.",
         TRAWLNET = "The patient fisher is always rewarded.",
+        TRUSTY_SHOOTER = "Throw anything at your hand at the enemy.",
         TURF_COBBLEROAD = "The life of a thriving village.",
         TURF_DEEPRAINFOREST_NOCANOPY = "As tame as wild jungle can be.",
         TURF_FIELDS = "A civilized patch of dirt.",
         TURF_FOUNDATION = "The foundation of a solid village.",
         TURF_LAWN = "Fully tamed grass.",
         VENOMGLAND = "Freshly squeezed poison.",
+        WHEELER_TRACKER = "Never betray it.",
         WINDOW_GREENHOUSE = "Sunlight and creepers.",
         WINDOW_LARGE_SQUARE = "Doubles as a tic-tac-toe board.",
         WINDOW_LARGE_SQUARE_CURTAIN = "Comes with drapery.",

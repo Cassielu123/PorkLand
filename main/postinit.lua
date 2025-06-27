@@ -86,8 +86,8 @@ local component_posts = {
     "grue",
     "hauntable",
     "health",
-    "inventory",
     "inventory_replica",
+    "inventory",
     "inventoryitem_replica",
     "inventoryitem",
     "inventoryitemmoisture",
@@ -144,25 +144,25 @@ local prefab_posts = {
     "multiplayer_portal",
     "orangestaff",
     "pigskin",
-    "player",
     "player_classified",
     "player_common_extensions",
+    "player",
     "pocketdimensioncontainer_defs",
     "poop",
+    "shadowcreature",
+    "shard_network",
+    "spoiledfood",
+    "statueruins",
     "telebase",
+    "telestaff",
     "thunder_close",
     "torch",
+    "walls",
+    "waterballoon",
     "waterprojectiles",
     "woodie",
     "world_network",
     "world",
-    "shard_network",
-    "spoiledfood",
-    "statueruins",
-    "shadowcreature",
-    "telestaff",
-    "walls",
-    "waterballoon",
     "wormwood",
     "wortox",
 }
@@ -257,6 +257,7 @@ modimport("postinit/preparedfoods")
 modimport("postinit/skilltrees")
 modimport("postinit/lightwatcher")
 modimport("postinit/shardindex")
+modimport("postinit/mixes")
 
 for _, file_name in ipairs(behaviour_posts) do
     modimport("postinit/behaviours/" .. file_name)

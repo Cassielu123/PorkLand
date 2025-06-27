@@ -151,7 +151,11 @@ local actionhandlers = {
     ActionHandler(ACTIONS.BUILD_ROOM, "doshortaction"),
     ActionHandler(ACTIONS.DEMOLISH_ROOM, "doshortaction"),
     ActionHandler(ACTIONS.THROW, "throw"),
-    ActionHandler(ACTIONS.DODGE, "dodge"),
+    ActionHandler(ACTIONS.DODGE, function(inst)
+        if inst.AllowDodge and inst:AllowDodge() then
+            return "dodge"
+        end
+    end),
 }
 
 local eventhandlers = {
@@ -622,18 +626,23 @@ local states = {
             TimeEvent(49*FRAMES, function(inst)
                 inst.SoundEmitter:PlaySound("dontstarve/common/fishingpole_fishcaught")
             end),
-            TimeEvent(60*FRAMES, function(inst)
-                local fishingrod = inst.sg.statemem.tool ~= nil and inst.sg.statemem.tool.components.fishingrod
-                if fishingrod ~= nil and fishingrod.target and fishingrod.target.components.inventoryitem then
-                    local delta = inst:GetPosition() - fishingrod.target:GetPosition()
-                    fishingrod.target.components.inventoryitem:Launch(Vector3(0,10,0) + delta * 2)
-                elseif fishingrod ~= nil and fishingrod.target and fishingrod.target:HasTag("sunkencontainer") then
-                    local item = fishingrod.target.components.container:RemoveItemBySlot(1)
-                    item.Transform:SetPosition(fishingrod.target.Transform:GetWorldPosition())
-                    fishingrod.target:Remove()
-                    fishingrod.target = item
-                    local delta = inst:GetPosition() - fishingrod.target:GetPosition()
-                    fishingrod.target.components.inventoryitem:Launch(Vector3(0,10,0) + delta * 2)
+            TimeEvent(60*FRAMES, function(inst) -- 最好写在action里，现在有点耦合
+                local fishingrod = inst.sg.statemem.tool ~= nil and inst.sg.statemem.tool:IsValid() and inst.sg.statemem.tool.components.fishingrod or nil
+                local target = fishingrod and fishingrod.target ~= nil and fishingrod.target:IsValid() and fishingrod.target or nil
+                if fishingrod ~= nil and target and target.components.inventoryitem then
+                    local delta = inst:GetPosition() - target:GetPosition()
+                    target.components.inventoryitem:Launch(Vector3(0,10,0) + delta * 2)
+                    inst.sg.statemem.item = target
+                elseif fishingrod ~= nil and target and target:HasTag("sunkencontainer") then
+                    local item = target.components.container:RemoveItemBySlot(1)
+                    if item then
+                        item.Transform:SetPosition(target.Transform:GetWorldPosition())
+                        fishingrod.target = item
+                        local delta = inst:GetPosition() - target:GetPosition()
+                        fishingrod.target.components.inventoryitem:Launch(Vector3(0,10,0) + delta * 2)
+                        inst.sg.statemem.item = item
+                    end
+                    target:Remove()
                 end
 
                 if fishingrod then
@@ -644,7 +653,11 @@ local states = {
                 inst.SoundEmitter:PlaySound("dontstarve/common/fishingpole_fishland")
             end),
             TimeEvent(70*FRAMES, function(inst)
-                local fishingrod = inst.sg.statemem.tool ~= nil and inst.sg.statemem.tool.components.fishingrod
+                local item = inst.sg.statemem.item ~= nil and inst.sg.statemem.item:IsValid() and inst.sg.statemem.item or nil
+                if item and item.components.inventoryitem and item.components.inventoryitem.canbepickedup then
+                    inst.components.inventory:GiveItem(item)
+                end
+                local fishingrod = inst.sg.statemem.tool ~= nil and inst.sg.statemem.tool:IsValid() and inst.sg.statemem.tool.components.fishingrod or nil
                 if fishingrod ~= nil then
                     fishingrod:Retrieve()
                 end
@@ -2618,8 +2631,7 @@ local states = {
         },
     },
 
-    State
-    {
+    State{
         name = "dodge",
         tags = {"busy", "evade", "no_stun", "canrotate"},
 
@@ -2643,14 +2655,26 @@ local states = {
             inst.CanBeHit = function() return false end
 
             inst.last_dodge_time = GetTime()
+
+            if inst._candodge then
+                inst._candodge:set(false)
+                if inst.candodgetask then
+                    inst.candodgetask:Cancel()
+                    inst.candodgetask = nil
+                end
+                inst.candodgetask = inst:DoTaskInTime(TUNING.WHEELER_DODGE_COOLDOWN, function()
+                    inst.candodgetask = nil
+                    inst._candodge:set(true)
+                end)
+            end
         end,
 
         timeline=
         {
-            TimeEvent(3*FRAMES, function(inst)
+            TimeEvent(3 * FRAMES, function(inst)
                 inst.Physics:SetMotorVelOverride(14, 0, 0)
             end),
-            TimeEvent(8*FRAMES, function(inst)
+            TimeEvent(8 * FRAMES, function(inst)
                 inst.Physics:SetMotorVelOverride(8, 0, 0)
                 inst.AnimState:PlayAnimation("slide_pst")
             end),
@@ -2672,8 +2696,7 @@ local states = {
         end,
     },
 
-    State
-    {
+    State{
         name = "dodge_pst",
         tags = {"evade", "no_stun"},
 
@@ -2949,12 +2972,22 @@ AddStategraphPostInit("wilson", function(sg)
         end
     end
 
+    local _start_sitting_onenter = sg.states["start_sitting"].onenter
+    sg.states["start_sitting"].onenter = function(inst, chair, ...)
+        _start_sitting_onenter(inst, chair, ...)
+        if chair and chair:HasTag("limited_chair") then
+            if chair:HasTag("rotatableobject") then
+                inst.Transform:SetPredictedTwoFaced()
+            end
+        end
+    end
+
     local _sit_jumpon_onenter = sg.states["sit_jumpon"].onenter
     sg.states["sit_jumpon"].onenter = function(inst, chair, ...)
         _sit_jumpon_onenter(inst, chair, ...)
         if chair and chair:HasTag("limited_chair") then
             if chair:HasTag("rotatableobject") then
-                inst.Transform:SetPredictedNoFaced()
+                inst.Transform:SetTwoFaced()
             end
         end
     end

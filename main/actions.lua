@@ -57,9 +57,9 @@ if not rawget(_G, "HotReloading") then
 
         SEARCH_MYSTERY = Action({priority = -1, distance = 1}),
 
-        THROW = Action({priority = 0, instant = false, rmb = true, distance = 20, mount_valid = true}),
+        THROW = Action({priority = 0, invalid_hold_action = true, rmb = true, distance = 20, mount_valid = true}),
 
-        DODGE = Action({priority = -5, instant = false, distance = math.huge}),
+        DODGE = Action({priority = -5, invalid_hold_action = true, distance = math.huge}),
     }
 
     for name, ACTION in pairs(_G.PL_ACTIONS) do
@@ -152,6 +152,15 @@ ACTIONS.PANGOLDEN_POOP.fn = function(act)
     local x, y, z = act.doer.Transform:GetWorldPosition()
     SpawnPrefab("goldnugget").Transform:SetPosition(x, y, z)
     return true
+end
+
+ACTIONS.FISH.extra_arrive_dist = function(doer, dest, bufferedaction)
+    local target = dest and dest.inst or nil
+    if target and (target:HasTag("sink") or target:HasTag("sunkencontainer")) then
+        return 1
+    end
+
+    return 0
 end
 
 ACTIONS.FISH.strfn = function(act)
